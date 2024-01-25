@@ -10,15 +10,9 @@
  * You should have received a copy of the GNU General Public License along with LimitList API. If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using limitlist_api.Models;
-using Microsoft.IdentityModel.Tokens;
 
 namespace limitlist_api.Controllers
 {
@@ -130,7 +124,7 @@ namespace limitlist_api.Controllers
     private static void ApplyDTOToItem(ref BudgetListItem budgetListItem, BudgetListItemDTO budgetListItemDTO)
     {
       budgetListItem.Id = budgetListItemDTO.Id;
-      budgetListItem.Name = budgetListItemDTO.Name.IsNullOrEmpty() ? budgetListItemDTO.Name : budgetListItem.Name;
+      budgetListItem.Name = budgetListItemDTO.Name is (null or "") ? budgetListItem.Name : budgetListItemDTO.Name;
       budgetListItem.Price = budgetListItemDTO.Price;
       budgetListItem.Position = budgetListItemDTO.Position;
     }
