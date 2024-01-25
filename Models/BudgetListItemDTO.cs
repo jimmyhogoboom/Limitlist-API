@@ -12,12 +12,12 @@
 
 namespace limitlist_api.Models;
 
-public class BudgetListItem
+public record BudgetListItemDTO
 {
-  public Guid Id { get; set; }
-  public string Name { get; set; } = "";
-  public decimal Price { get; set; }
-  public int Position { get; set; } = 0;
+  public Guid Id { get; init; }
+  public string? Name { get; init; }
+  public decimal Price { get; init; }
+  public int Position { get; init; }
 
-  public Guid BudgetListId { get; set; }
+  // BudgetListName ?
 }
