@@ -20,6 +20,6 @@ public class LimitListContext : DbContext
   {
   }
 
-  public DbSet<BudgetListItem> BudgetListItems { get; set; } = null!;
-  public DbSet<BudgetList> BudgetLists { get; set; } = null!;
+  public DbSet<BudgetListItem> BudgetListItems => Set<BudgetListItem>();
+  public DbSet<BudgetList> BudgetLists => Set<BudgetList>();
 }

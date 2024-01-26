@@ -14,9 +14,10 @@ namespace limitlist_api.Models;
 
 public record BudgetListItemDTO
 {
-  public Guid Id { get; init; }
+  public Guid? Id { get; init; } = null;
   public string? Name { get; init; }
   public decimal Price { get; init; }
+  public Guid BudgetListId { get; set; }
 
   // BudgetListName ?
 }

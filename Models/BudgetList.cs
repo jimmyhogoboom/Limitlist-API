@@ -18,6 +18,8 @@ public class BudgetList
   public string Name { get; set; } = "";
   public decimal Budget { get; set; }
 
-  public ICollection<BudgetListItem> BudgetListItems { get; set; }
+  public required User CreatedByUser { get; set; }
+
+  public required ICollection<BudgetListItem> BudgetListItems { get; set; }
 }
 

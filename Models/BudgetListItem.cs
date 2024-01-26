@@ -18,5 +18,5 @@ public class BudgetListItem
   public string Name { get; set; } = "";
   public decimal Price { get; set; }
 
-  public BudgetList? List { get; set; }
+  public required BudgetList List { get; set; }
 }

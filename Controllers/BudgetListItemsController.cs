@@ -31,7 +31,7 @@ namespace limitlist_api.Controllers
     [HttpGet]
     public async Task<ActionResult<IEnumerable<BudgetListItemDTO>>> GetBudgetListItems()
     {
-      return await _context.BudgetListItems
+      return await _context.BudgetListItems.Include(x => x.List)
         .Select(x => ItemToDTO(x))
         .ToListAsync();
     }
@@ -83,12 +83,22 @@ namespace limitlist_api.Controllers
     // POST: api/BudgetItems
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<BudgetListItem>> PostBudgetListItem(BudgetListItem budgetListItem)
+    public async Task<ActionResult<BudgetListItemDTO>> PostBudgetListItem(BudgetListItemDTO budgetListItemDTO)
     {
+      var list = await _context.BudgetLists.FindAsync(budgetListItemDTO.BudgetListId);
+      if (list == null)
+      {
+        return NotFound();
+      }
+
+      var budgetListItem = new BudgetListItem() { List = list };
+
+      ApplyDTOToItem(ref budgetListItem, budgetListItemDTO);
+
       _context.BudgetListItems.Add(budgetListItem);
       await _context.SaveChangesAsync();
 
-      return CreatedAtAction(nameof(GetBudgetListItem), new { id = budgetListItem.Id }, budgetListItem);
+      return CreatedAtAction(nameof(GetBudgetListItem), new { id = budgetListItem.Id }, ItemToDTO(budgetListItem));
     }
 
     // DELETE: api/BudgetItems/5
@@ -118,11 +128,12 @@ namespace limitlist_api.Controllers
         Id = budgetListItem.Id,
         Name = budgetListItem.Name,
         Price = budgetListItem.Price,
+        BudgetListId = budgetListItem.List.Id,
       };
 
     private static void ApplyDTOToItem(ref BudgetListItem budgetListItem, BudgetListItemDTO budgetListItemDTO)
     {
-      budgetListItem.Id = budgetListItemDTO.Id;
+      budgetListItem.Id = budgetListItemDTO.Id ?? budgetListItem.Id;
       budgetListItem.Name = budgetListItemDTO.Name is (null or "") ? budgetListItem.Name : budgetListItemDTO.Name;
       budgetListItem.Price = budgetListItemDTO.Price;
     }
