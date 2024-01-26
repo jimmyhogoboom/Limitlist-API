@@ -118,7 +118,6 @@ namespace limitlist_api.Controllers
         Id = budgetListItem.Id,
         Name = budgetListItem.Name,
         Price = budgetListItem.Price,
-        Position = budgetListItem.Position,
       };
 
     private static void ApplyDTOToItem(ref BudgetListItem budgetListItem, BudgetListItemDTO budgetListItemDTO)
@@ -126,7 +125,6 @@ namespace limitlist_api.Controllers
       budgetListItem.Id = budgetListItemDTO.Id;
       budgetListItem.Name = budgetListItemDTO.Name is (null or "") ? budgetListItem.Name : budgetListItemDTO.Name;
       budgetListItem.Price = budgetListItemDTO.Price;
-      budgetListItem.Position = budgetListItemDTO.Position;
     }
   }
 }

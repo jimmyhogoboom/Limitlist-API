@@ -17,7 +17,6 @@ public record BudgetListItemDTO
   public Guid Id { get; init; }
   public string? Name { get; init; }
   public decimal Price { get; init; }
-  public int Position { get; init; }
 
   // BudgetListName ?
 }
