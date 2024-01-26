@@ -10,16 +10,14 @@
  * You should have received a copy of the GNU General Public License along with LimitList API. If not, see <https://www.gnu.org/licenses/>.
  */
 
-using Microsoft.EntityFrameworkCore;
-
 namespace limitlist_api.Models;
 
-public class LimitListContext : DbContext
+public class BudgetList
 {
-  public LimitListContext(DbContextOptions<LimitListContext> options) : base(options)
-  {
-  }
+  public Guid Id { get; set; }
+  public string Name { get; set; } = "";
+  public decimal Budget { get; set; }
 
-  public DbSet<BudgetListItem> BudgetListItems { get; set; } = null!;
-  public DbSet<BudgetList> BudgetLists { get; set; } = null!;
+  public ICollection<BudgetListItem> BudgetListItems { get; set; }
 }
+

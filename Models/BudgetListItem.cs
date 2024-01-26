@@ -17,7 +17,6 @@ public class BudgetListItem
   public Guid Id { get; set; }
   public string Name { get; set; } = "";
   public decimal Price { get; set; }
-  public int Position { get; set; } = 0;
 
-  public Guid BudgetListId { get; set; }
+  public BudgetList? List { get; set; }
 }
