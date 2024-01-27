@@ -73,6 +73,8 @@ namespace limitlist_api
     [HttpPost]
     public async Task<ActionResult<BudgetList>> PostBudgetList(BudgetList budgetList)
     {
+      // TODO: save logged in user on list as owner
+
       _context.BudgetLists.Add(budgetList);
       await _context.SaveChangesAsync();
 
