@@ -11,6 +11,7 @@
  */
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using limitlist_api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,9 +22,50 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<LimitListContext>(opt => opt.UseInMemoryDatabase("LimitList"));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+  c.AddSecurityDefinition("jwt_auth", new OpenApiSecurityScheme()
+  {
+    Name = "Bearer",
+    BearerFormat = "JWT",
+    Scheme = "Bearer",
+    Description = "Authorization token from user-jwts.",
+    In = ParameterLocation.Header,
+    Type = SecuritySchemeType.Http,
+  });
+
+  c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+  {
+    {
+      new OpenApiSecurityScheme()
+      {
+        Reference = new OpenApiReference()
+        {
+          Id = "jwt_auth",
+          Type = ReferenceType.SecurityScheme
+        }
+      },
+      new string[] { }
+    },
+  });
+});
+
+builder.Services.AddAuthentication("Bearer")
+  .AddJwtBearer();
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorizationBuilder()
+  .AddPolicy("admin_limitlist", policy =>
+      policy
+        .RequireRole("admin")
+        .RequireClaim("scope", "limitlist_api"));
 
 var app = builder.Build();
+
+// app.UseCors();
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -34,13 +76,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//app.UseAuthorization();
-
-app.MapControllers();
+app.MapControllers()
+  .RequireAuthorization("admin_limitlist");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-  public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
