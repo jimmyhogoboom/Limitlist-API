@@ -11,10 +11,11 @@
  */
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace limitlist_api.Models;
 
-public class LimitListContext : DbContext
+public class LimitListContext : IdentityDbContext
 {
   public LimitListContext(DbContextOptions<LimitListContext> options) : base(options)
   {
