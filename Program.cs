@@ -27,8 +27,6 @@ var jwtConfig = new JWTConfig
   key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"] ?? "")),
   issuer = builder.Configuration["JWT:ValidIssuer"] ?? "",
   audience = builder.Configuration["JWT:ValidIssuer"] ?? "",
-  // Default to 5 minute token
-  validUntil = DateTime.Now.AddMinutes(Convert.ToDouble(builder.Configuration["JWT:TokenExpiry"] ?? "5"))
 };
 
 // Add services to the container.
@@ -125,12 +123,37 @@ app.MapControllers()
 
 app.MapPost(
   "/security/createToken",
-  [AllowAnonymous] (IdentityUser user) =>
+  [AllowAnonymous] async (
+    UserLogin user,
+    LimitListContext context,
+    IPasswordHasher<IdentityUser> passwordHasher,
+    UserManager<IdentityUser> userManager
+  ) =>
   {
-    // TODO: Verfiy user password
     // TODO: Include user authorizations?
 
-    return Results.Ok(JWT.BuildJWTToken(jwtConfig));
+    var count = await context.Users.CountAsync();
+    if (count < 1)
+    {
+      return Results.Problem(statusCode: 500, detail: "No users exist yet!");
+    }
+
+    var normalizedEmail = userManager.NormalizeEmail(user.Email);
+    var userRecord = user.Id is null
+      ? await context.Users.FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail)
+      : await context.Users.FindAsync(user.Id);
+
+    if (userRecord is null)
+    {
+      return Results.NotFound();
+    }
+
+    if (AnyPasswordMatch(user, userRecord, passwordHasher))
+    {
+      return Results.Ok(JWT.BuildJWTToken(jwtConfig));
+    }
+
+    return Results.Unauthorized();
 
     //         var issuer = builder.Configuration["Jwt:Issuer"];
     //         var audience = builder.Configuration["Jwt:Audience"];
@@ -164,3 +187,24 @@ app.MapPost(
 );
 
 app.Run();
+
+bool AnyPasswordMatch(UserLogin user, IdentityUser identityUser, IPasswordHasher<IdentityUser> passwordHasher)
+{
+  if (user.Password is null)
+  {
+    return identityUser.PasswordHash == user.PasswordHash;
+  }
+
+  // Either Password or PasswordHash is required
+  if (identityUser.PasswordHash is null)
+  {
+    return false;
+  }
+
+  var verified = passwordHasher.VerifyHashedPassword(identityUser, identityUser.PasswordHash, user.Password);
+
+  return verified == PasswordVerificationResult.Success;
+}
+
+record struct UserLogin(string? Id, string? Email, string? Password, string? PasswordHash);
+
